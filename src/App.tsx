@@ -1,11 +1,11 @@
-import { TriangleLayerProvider } from "./context/TriangleLayerContext";
-import MapWrapper from "./MapWrapper";
+import { MapLayerProvider } from "./context/MapLayerConext";
+import MapWrapper from "./tsx/MapWrapper";
 
 function App() {
   return (
-    <TriangleLayerProvider>
+    <MapLayerProvider>
       <MapWrapper />
-    </TriangleLayerProvider>
+    </MapLayerProvider>
   );
 }
 

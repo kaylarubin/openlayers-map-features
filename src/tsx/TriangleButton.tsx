@@ -3,8 +3,8 @@ import Point from "ol/geom/Point";
 import VectorSource from "ol/source/Vector";
 import { Fill, RegularShape, Stroke, Style } from "ol/style";
 import { useContext, useEffect, useState } from "react";
-import { TriangleLayerContext } from "./context/TriangleLayerContext";
-import { transformToOpenLayerProjection } from "./supportFunctions";
+import { mapLayerContext } from "../context/MapLayerConext";
+import { transformToOpenLayerProjection } from "../supportFunctions";
 
 const getTriangleStyle = (color: string) => {
   return new Style({
@@ -44,16 +44,13 @@ const TriangleSource = new VectorSource({ features: [triangleFeature] });
 const HALF_SECOND = 500;
 
 export const TriangleButton: React.FC = () => {
-  console.log("triangle button re-rendered");
-  //should not cause any re-renders if the button is toggled off
-
   const [triangleButtonToggled, setTriangleButtonToggled] =
     useState<boolean>(false);
   const [nextColor, setNextColor] = useState<number>(0);
   const [updateColor, setUpdateColor] = useState<boolean>(false);
   const [colorTimer, setColorTimer] = useState<NodeJS.Timer>();
 
-  const triangleContext = useContext(TriangleLayerContext);
+  const mapLayerApi = useContext(mapLayerContext);
 
   useEffect(() => {
     return () => {
@@ -66,7 +63,7 @@ export const TriangleButton: React.FC = () => {
       TriangleSource.getFeatures()[0].setStyle(
         getTriangleStyle(spectrum[nextColor])
       );
-      triangleContext.triangleLayer?.setSource(TriangleSource);
+      mapLayerApi.triangleLayer().setSource(TriangleSource);
     }
 
     if (nextColor === spectrum.length - 1) setNextColor(0);
@@ -86,10 +83,10 @@ export const TriangleButton: React.FC = () => {
 
   const handleButtonClick = () => {
     if (!triangleButtonToggled) {
-      triangleContext.triangleLayer?.setSource(TriangleSource);
+      mapLayerApi.triangleLayer().setSource(TriangleSource);
       createIntervalTimer();
     } else {
-      triangleContext.triangleLayer?.setSource(null);
+      mapLayerApi.triangleLayer().setSource(null);
       clearIntervalTimer();
     }
     setTriangleButtonToggled((prev) => !prev);
