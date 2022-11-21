@@ -22,6 +22,7 @@ import WMTSTileGrid from "ol/tilegrid/WMTS";
 import { get as getProjection } from "ol/proj";
 import { getTopLeft, getWidth } from "ol/extent";
 import { mapLayerContext } from "../context/MapLayerConext";
+import { OwnshipLayer } from "./OwnshipLayer";
 
 // const circleStyle = new Style({
 //   stroke: new Stroke({
@@ -95,6 +96,7 @@ const MapWrapper: React.FC = () => {
         //   }),
         // }),
         mapLayerApi.triangleLayer(),
+        mapLayerApi.ownshipLayer(),
       ],
       view: new View({
         center: transformToOpenLayerProjection(nellis),
@@ -114,6 +116,7 @@ const MapWrapper: React.FC = () => {
   return (
     <>
       <TriangleButton />
+      <OwnshipLayer />
       <div ref={mapElement} className="map-container" />
     </>
   );

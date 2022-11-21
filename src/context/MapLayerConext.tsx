@@ -8,12 +8,14 @@ interface MapLayerContext {
   map: Map;
   setMap: (m: Map) => void;
   triangleLayer: () => VectorLayer<VectorSource<Geometry>>;
+  ownshipLayer: () => VectorLayer<VectorSource<Geometry>>;
 }
 
 const initialState = {
   map: new Map({}),
   setMap: (m: Map) => {},
   triangleLayer: () => new VectorLayer<VectorSource<Geometry>>(),
+  ownshipLayer: () => new VectorLayer<VectorSource<Geometry>>(),
 };
 
 export const mapLayerContext = createContext<MapLayerContext>(initialState);
@@ -24,11 +26,11 @@ export function MapLayerProvider({ children }: { children: React.ReactNode }) {
 
   //mapLayer Refs
   const triangleLayerRef = useRef(new VectorLayer<VectorSource<Geometry>>());
+  const movingOwnshipRef = useRef(new VectorLayer<VectorSource<Geometry>>());
 
   //layer functions
-  const triangleLayer = () => {
-    return triangleLayerRef.current;
-  };
+  const triangleLayer = () => triangleLayerRef.current;
+  const ownshipLayer = () => movingOwnshipRef.current;
 
   return (
     <mapLayerContext.Provider
@@ -36,6 +38,7 @@ export function MapLayerProvider({ children }: { children: React.ReactNode }) {
         map,
         setMap,
         triangleLayer,
+        ownshipLayer,
       }}
     >
       {children}
