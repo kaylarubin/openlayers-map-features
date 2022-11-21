@@ -2,12 +2,12 @@ import { Coordinate } from "ol/coordinate";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import VectorSource from "ol/source/Vector";
-import { Fill, Icon, RegularShape, Stroke, Style } from "ol/style";
+import { Icon, Style } from "ol/style";
 import { useContext, useEffect, useState } from "react";
 import { mapLayerContext } from "../context/MapLayerConext";
 import { transformToOpenLayerProjection } from "../supportFunctions";
 import planeIcon from "../resources/svg/plane.svg";
-import { circular, fromCircle } from "ol/geom/Polygon";
+import { fromCircle } from "ol/geom/Polygon";
 import { Circle } from "ol/geom";
 
 const HALF_SECOND = 500;
@@ -15,7 +15,7 @@ const HALF_SECOND = 500;
 //Circle constants
 const RADIUS = 0.3; //in unit of projection
 const CENTER = [-115, 36.5]; //[lon,lat]
-const CIRCLE_COORDS_ARRAY_LENGTH = 64;
+const CIRCLE_COORDS_ARRAY_LENGTH = 1500;
 const STARTING_ANGLE = 0;
 const olCircle = new Circle(CENTER, RADIUS);
 const olPolygonCircle = fromCircle(
