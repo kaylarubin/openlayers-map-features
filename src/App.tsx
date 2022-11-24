@@ -1,11 +1,14 @@
+import { ColorContextProvider } from "./context/ColorContext";
 import { MapLayerProvider } from "./context/MapLayerConext";
 import MapWrapper from "./tsx/MapWrapper";
 
 function App() {
   return (
-    <MapLayerProvider>
-      <MapWrapper />
-    </MapLayerProvider>
+    <ColorContextProvider>
+      <MapLayerProvider>
+        <MapWrapper />
+      </MapLayerProvider>
+    </ColorContextProvider>
   );
 }
 

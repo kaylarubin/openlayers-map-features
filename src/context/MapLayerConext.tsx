@@ -9,6 +9,8 @@ interface MapLayerContext {
   setMap: (m: Map) => void;
   triangleLayer: () => VectorLayer<VectorSource<Geometry>>;
   ownshipLayer: () => VectorLayer<VectorSource<Geometry>>;
+  triangleLayerToggled: boolean;
+  setTriangleLayerToggled: (b: boolean) => void;
 }
 
 const initialState = {
@@ -16,6 +18,8 @@ const initialState = {
   setMap: (m: Map) => {},
   triangleLayer: () => new VectorLayer<VectorSource<Geometry>>(),
   ownshipLayer: () => new VectorLayer<VectorSource<Geometry>>(),
+  triangleLayerToggled: false,
+  setTriangleLayerToggled: (b: boolean) => {},
 };
 
 export const mapLayerContext = createContext<MapLayerContext>(initialState);
@@ -28,6 +32,10 @@ export function MapLayerProvider({ children }: { children: React.ReactNode }) {
   const triangleLayerRef = useRef(new VectorLayer<VectorSource<Geometry>>());
   const movingOwnshipRef = useRef(new VectorLayer<VectorSource<Geometry>>());
 
+  //button states
+  const [triangleLayerToggled, setTriangleLayerToggled] =
+    useState<boolean>(false);
+
   //layer functions
   const triangleLayer = () => triangleLayerRef.current;
   const ownshipLayer = () => movingOwnshipRef.current;
@@ -39,6 +47,8 @@ export function MapLayerProvider({ children }: { children: React.ReactNode }) {
         setMap,
         triangleLayer,
         ownshipLayer,
+        triangleLayerToggled,
+        setTriangleLayerToggled,
       }}
     >
       {children}

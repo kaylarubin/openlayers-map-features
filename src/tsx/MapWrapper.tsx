@@ -22,7 +22,8 @@ import WMTSTileGrid from "ol/tilegrid/WMTS";
 import { get as getProjection } from "ol/proj";
 import { getTopLeft, getWidth } from "ol/extent";
 import { mapLayerContext } from "../context/MapLayerConext";
-import { OwnshipLayer } from "./OwnshipLayer";
+import { OwnshipLayer } from "./MapLayers/OwnshipLayer";
+import { TriangleLayer } from "./MapLayers/TriangleLayer";
 
 // const circleStyle = new Style({
 //   stroke: new Stroke({
@@ -49,6 +50,10 @@ const nellis = [-115.065, 36.2322];
 //   lon: number;
 //   radius: number;
 // }
+
+enum MapLayer {
+  TRIANGLE_LAYER,
+}
 
 const MapWrapper: React.FC = () => {
   // get ref to div element - OpenLayers will render into this div
@@ -113,10 +118,23 @@ const MapWrapper: React.FC = () => {
     };
   }, []);
 
+  const clearMapLayer = (layer: MapLayer) => {
+    switch (layer) {
+      case MapLayer.TRIANGLE_LAYER:
+        mapLayerApi.triangleLayer().setSource(null);
+        break;
+    }
+    return null;
+  };
+
   return (
     <>
       <TriangleButton />
-      <OwnshipLayer />
+      {mapLayerApi.triangleLayerToggled ? (
+        <TriangleLayer />
+      ) : (
+        clearMapLayer(MapLayer.TRIANGLE_LAYER)
+      )}
       <div ref={mapElement} className="map-container" />
     </>
   );
