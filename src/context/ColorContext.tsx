@@ -1,13 +1,13 @@
 //Context similar to ownship which every half second will update the color offered by the context provider
-import { createContext, useEffect, useState } from "react";
+import {createContext, useEffect, useState} from 'react';
 
 export const Triangle_colors = {
-  red: "#c71212",
-  yellow: "#f2e013",
-  orange: "#f28a13",
-  green: "#32a852",
-  blue: "#13a1f2",
-  purple: "#873CF7",
+  red: '#c71212',
+  yellow: '#f2e013',
+  orange: '#f28a13',
+  green: '#32a852',
+  blue: '#13a1f2',
+  purple: '#873CF7',
 };
 
 const spectrum = [
@@ -25,11 +25,7 @@ const initialState = {
 
 export const ColorContext = createContext(initialState);
 
-export function ColorContextProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function ColorContextProvider({children}: {children: React.ReactNode}) {
   const [updateColor, setUpdateColor] = useState<boolean>(false);
   const [colorIndex, setColorIndex] = useState<number>(0);
   const [color, setColor] = useState<string>(initialState.color);
@@ -47,7 +43,5 @@ export function ColorContextProvider({
     else setColorIndex((prev) => prev + 1);
   }, [updateColor]);
 
-  return (
-    <ColorContext.Provider value={{ color }}>{children}</ColorContext.Provider>
-  );
+  return <ColorContext.Provider value={{color}}>{children}</ColorContext.Provider>;
 }

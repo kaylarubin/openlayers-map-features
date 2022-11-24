@@ -1,8 +1,8 @@
-import { createContext, useState, useRef } from "react";
-import { Geometry } from "ol/geom";
-import VectorLayer from "ol/layer/Vector";
-import VectorSource from "ol/source/Vector";
-import Map from "ol/Map";
+import {createContext, useState, useRef} from 'react';
+import {Geometry} from 'ol/geom';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import Map from 'ol/Map';
 
 interface MapLayerContext {
   map: Map;
@@ -11,6 +11,8 @@ interface MapLayerContext {
   ownshipLayer: () => VectorLayer<VectorSource<Geometry>>;
   triangleLayerToggled: boolean;
   setTriangleLayerToggled: (b: boolean) => void;
+  ownshipLayerToggled: boolean;
+  setOwnshipLayerToggled: (b: boolean) => void;
 }
 
 const initialState = {
@@ -20,11 +22,13 @@ const initialState = {
   ownshipLayer: () => new VectorLayer<VectorSource<Geometry>>(),
   triangleLayerToggled: false,
   setTriangleLayerToggled: (b: boolean) => {},
+  ownshipLayerToggled: false,
+  setOwnshipLayerToggled: (b: boolean) => {},
 };
 
 export const mapLayerContext = createContext<MapLayerContext>(initialState);
 
-export function MapLayerProvider({ children }: { children: React.ReactNode }) {
+export function MapLayerProvider({children}: {children: React.ReactNode}) {
   //map
   const [map, setMap] = useState<Map>(initialState.map);
 
@@ -33,8 +37,8 @@ export function MapLayerProvider({ children }: { children: React.ReactNode }) {
   const movingOwnshipRef = useRef(new VectorLayer<VectorSource<Geometry>>());
 
   //button states
-  const [triangleLayerToggled, setTriangleLayerToggled] =
-    useState<boolean>(false);
+  const [triangleLayerToggled, setTriangleLayerToggled] = useState<boolean>(false);
+  const [ownshipLayerToggled, setOwnshipLayerToggled] = useState<boolean>(false);
 
   //layer functions
   const triangleLayer = () => triangleLayerRef.current;
@@ -49,6 +53,8 @@ export function MapLayerProvider({ children }: { children: React.ReactNode }) {
         ownshipLayer,
         triangleLayerToggled,
         setTriangleLayerToggled,
+        ownshipLayerToggled,
+        setOwnshipLayerToggled,
       }}
     >
       {children}
