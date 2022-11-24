@@ -7,19 +7,23 @@ import {useContext, useEffect, useState} from 'react';
 import {mapLayerContext} from '../../context/MapLayerConext';
 import {transformToOpenLayerProjection} from '../../supportFunctions';
 import planeIcon from '../../resources/svg/plane.svg';
-import {fromCircle} from 'ol/geom/Polygon';
+import {circular, fromCircle} from 'ol/geom/Polygon';
 import {Circle} from 'ol/geom';
 
 const HALF_SECOND = 500;
 
 //Circle constants
-const RADIUS = 0.25; //in unit of projection
+const RADIUS = 10000; //meters
+const circumference = 2 * Math.PI * RADIUS;
 const CENTER = [-115, 36.5]; //[lon,lat]
-const CIRCLE_COORDS_ARRAY_LENGTH = 1000;
-const STARTING_ANGLE = 0;
-const olCircle = new Circle(CENTER, RADIUS);
-const olPolygonCircle = fromCircle(olCircle, CIRCLE_COORDS_ARRAY_LENGTH, STARTING_ANGLE);
-const olCircleFeature = new Feature({geometry: olPolygonCircle});
+const CIRCLE_COORDS_ARRAY_LENGTH = 100;
+// const STARTING_ANGLE = 0;
+// const olCircle = new Circle(CENTER, RADIUS);
+// const olPolygonCircle = fromCircle(olCircle, CIRCLE_COORDS_ARRAY_LENGTH, STARTING_ANGLE);
+// const olCircleFeature = new Feature({geometry: olPolygonCircle});
+// const CIRCLE_COORDS = olCircleFeature.getGeometry()?.getCoordinates()[0] ?? [];
+const olCircle = circular(CENTER, RADIUS, CIRCLE_COORDS_ARRAY_LENGTH);
+const olCircleFeature = new Feature({geometry: olCircle});
 const CIRCLE_COORDS = olCircleFeature.getGeometry()?.getCoordinates()[0] ?? [];
 
 const getOwnshipStyle = (rotation?: number) => {
@@ -34,6 +38,7 @@ const getOwnshipStyle = (rotation?: number) => {
 const calculateAngleBetweenCoordinates = (coordOne: Coordinate, coordTwo: Coordinate) => {
   const dy = coordOne[0] - coordTwo[0];
   const dx = coordOne[1] - coordTwo[1];
+  if (dx === 0) return Math.PI / 2;
   return Math.atan2(dy, dx); // range [-PI, PI]
 };
 
