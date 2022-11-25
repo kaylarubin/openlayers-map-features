@@ -7,24 +7,7 @@ import {useContext, useEffect, useState} from 'react';
 import {mapLayerContext} from '../../context/MapLayerConext';
 import {transformToOpenLayerProjection} from '../../supportFunctions';
 import planeIcon from '../../resources/svg/plane.svg';
-import {circular, fromCircle} from 'ol/geom/Polygon';
-import {Circle} from 'ol/geom';
-
-const HALF_SECOND = 500;
-
-//Circle constants
-const RADIUS = 10000; //meters
-const circumference = 2 * Math.PI * RADIUS;
-const CENTER = [-115, 36.5]; //[lon,lat]
-const CIRCLE_COORDS_ARRAY_LENGTH = 100;
-// const STARTING_ANGLE = 0;
-// const olCircle = new Circle(CENTER, RADIUS);
-// const olPolygonCircle = fromCircle(olCircle, CIRCLE_COORDS_ARRAY_LENGTH, STARTING_ANGLE);
-// const olCircleFeature = new Feature({geometry: olPolygonCircle});
-// const CIRCLE_COORDS = olCircleFeature.getGeometry()?.getCoordinates()[0] ?? [];
-const olCircle = circular(CENTER, RADIUS, CIRCLE_COORDS_ARRAY_LENGTH);
-const olCircleFeature = new Feature({geometry: olCircle});
-const CIRCLE_COORDS = olCircleFeature.getGeometry()?.getCoordinates()[0] ?? [];
+import {circular} from 'ol/geom/Polygon';
 
 const getOwnshipStyle = (rotation?: number) => {
   return new Style({
@@ -49,14 +32,47 @@ const getOwnshipSource = (coords: Coordinate, rotation?: number) => {
   return new VectorSource({features: [ownshipFeature]});
 };
 
+/*Calculate length of coordinate array to replicate speed of jet
+ * @param speedMPH: speed of jet in miles per hour
+ * @param radius: radius of circle in meters
+ * @param updateInterval: frequency of update of plane position in milliseconds
+ *
+ * @return {number} length of circle's coordinate array
+ */
+const calculateCircleCoordLength = (speedMPH: number, radius: number, updateInterval: number) => {
+  const metersPerMile = 1 / 1609.34;
+  const minutesPerHour = 60;
+  const secondsPerMinute = 60;
+  const millisecondsPerSecond = 1000;
+
+  const intervalPerMilliseconds = 1 / updateInterval;
+  const cirlceCircumferenceMeters = 2 * Math.PI * radius;
+  return (
+    cirlceCircumferenceMeters * metersPerMile * (1 / speedMPH) * minutesPerHour * secondsPerMinute * millisecondsPerSecond * intervalPerMilliseconds
+  );
+};
+
+//CONSTANTS
+const UPDATE_INTERVAL_MILLISECONDS = 500;
+const RADIUS = 40000; //meters
+const CENTER = [-115.065, 36.2322]; //[lon,lat]
+const PLANE_SPEED_MPH = 600;
+
 export const OwnshipLayer: React.FC = () => {
   const [update, setUpdate] = useState<number>(Date.now());
   const [timer, setTimer] = useState<NodeJS.Timer>();
   const [coordIndex, setCoordIndex] = useState<number>(0);
+  const [circleCoords, setCircleCoords] = useState<Coordinate[]>([]);
 
   const mapLayerApi = useContext(mapLayerContext);
 
   useEffect(() => {
+    //Initialize circle Coords
+    const numberOfVertices = calculateCircleCoordLength(PLANE_SPEED_MPH, RADIUS, UPDATE_INTERVAL_MILLISECONDS);
+    const olCircle = circular(CENTER, RADIUS, numberOfVertices);
+    const olCircleFeature = new Feature({geometry: olCircle});
+    setCircleCoords(olCircleFeature.getGeometry()?.getCoordinates()[0] ?? []);
+
     createIntervalTimer();
     return () => {
       clearIntervalTimer();
@@ -64,18 +80,20 @@ export const OwnshipLayer: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let prevIndex = coordIndex - 1 >= 0 ? coordIndex - 1 : 0;
-    const planeRotation = calculateAngleBetweenCoordinates(CIRCLE_COORDS[coordIndex], CIRCLE_COORDS[prevIndex]);
-    mapLayerApi.ownshipLayer().setSource(getOwnshipSource(CIRCLE_COORDS[coordIndex], planeRotation));
+    if (circleCoords.length > 0) {
+      let prevIndex = coordIndex - 1 >= 0 ? coordIndex - 1 : 0;
+      const planeRotation = calculateAngleBetweenCoordinates(circleCoords[coordIndex], circleCoords[prevIndex]);
+      mapLayerApi.ownshipLayer().setSource(getOwnshipSource(circleCoords[coordIndex], planeRotation));
 
-    if (coordIndex === CIRCLE_COORDS_ARRAY_LENGTH - 1) setCoordIndex(0); //set index back to 0 after last array element
-    else setCoordIndex((prev) => prev + 1);
+      if (coordIndex === circleCoords.length - 1) setCoordIndex(0); //set index back to 0 after last array element
+      else setCoordIndex((prev) => prev + 1);
+    }
   }, [update]);
 
   const createIntervalTimer = () => {
     const interval = setInterval(() => {
       setUpdate(Date.now());
-    }, HALF_SECOND);
+    }, UPDATE_INTERVAL_MILLISECONDS);
     setTimer(interval);
   };
 
